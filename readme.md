@@ -1,10 +1,12 @@
-# genePlot
-`genePlot` is a [gggenomes](https://thackl.github.io/gggenomes/) based lightweight bioinformatics pipeline for **comparative visualization of genes** across multiple genomic segments.  It automates the process of extracting coding sequences from gff files, aligning homologous genes, and generating **comparative gene plots** to highlight synteny and structural variations. The order of the genomic regions is determined by shared genomic content (SGC = ANI x shared region /2). 
+# GenePlot
+`GenePlot` is a [gggenomes](https://thackl.github.io/gggenomes/) based lightweight bioinformatics pipeline for **comparative visualization of genes** across multiple genomic segments.  It automates the process of extracting coding sequences from gff files, aligning homologous genes, and generating **comparative gene plots** to highlight synteny and structural variations. The order of the genomic regions is determined by shared genomic content (SGC = ANI x shared region /2). 
 
+Gene synteny plot
 <div align="center">
   <img src="test_results/genePlot.coordinates.png" alt="Contig Classification Flowchart" width="700" height="600">
 </div>
 
+Gene order plot
 <div align="center">
   <img src="test_results/genePlot.genes.png" alt="Contig Classification Flowchart" width="700" height="600">
 </div>
