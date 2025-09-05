@@ -1,1 +1,4 @@
 github.sh
+run.sh
+!.gitignore
+!results/
