@@ -2,9 +2,7 @@
 
 `GenePlot` is a lightweight bioinformatics pipeline built on [gggenomes](https://thackl.github.io/gggenomes/) for **comparative visualization of genes** across multiple genomic segments. It automates the extraction of coding sequences from GFF files, aligns homologous genes, and generates **comparative gene plots** to highlight synteny and structural variations. 
 
-The order of genomic regions is determined by **Shared Genomic Content (SGC)**, calculated as:
-
-> **SGC = ANI × shared region / 2**
+The order of genomic regions is determined by **Shared Genomic Content (SGC)**, calculated as: SGC = ANI × shared region / 2
 
 ---
 
