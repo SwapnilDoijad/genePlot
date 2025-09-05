@@ -13,8 +13,6 @@ The order of genomic regions is determined by **Shared Genomic Content (SGC)**, 
 
 ---
 
-## Example Plots
-
 ### Gene Synteny Plot (Original Gene Order)
 The shaded areas between genomes represent pairwise BLAST matches.
 
