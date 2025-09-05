@@ -68,7 +68,8 @@ Follow these steps to install and set up `GenePlot`:
 Run the `genePlot.sh` script with the following options:
 
 ```bash
-Usage: ./genePlot.sh --help
+conda activate genePlot
+./genePlot.sh --help
 ```
 
 ### Options:
