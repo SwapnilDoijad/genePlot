@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Add the script's directory to PATH
+pipeline_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export PATH=$pipeline_dir:$PATH
+
 # Initialize variables
     data_dir=""
     output_dir=""
@@ -8,7 +12,7 @@
 # Function to display usage
     usage() {
         echo "Usage: $0 -d <data_directory> -o <output_directory> [-c <cpus>]"
-        echo "  -d, --data_dir   <directory>     Input data directory"
+        echo "  -d, --data_dir   <directory>     Input data directory (*.gff)"
         echo "  -o, --output_dir  <directory>     Output directory"
         echo "  -c, --cpus        <number>       Number of CPUs to use (optional, default: 4)"
         exit 1
@@ -65,7 +69,7 @@
         if [ ! -f ${output_dir}/fasta/${i}.fasta ] ; then
             log "Processing GFF file: $i"
 
-            python scripts/gff2fasta.py \
+            python $pipeline_dir/scripts/gff2fasta.py \
             --gff ${data_dir}/${i}.${sx} \
             --output ${output_dir}/fasta/${i}.fasta
         fi
@@ -77,7 +81,7 @@
         if [ ! -f ${output_dir}/cds/${i}.cds.fasta ] ; then
             log "Extracting CDS for: $i"
 
-            python scripts/extract_cds_for_blast.py \
+            python $pipeline_dir/scripts/extract_cds_for_blast.py \
             -i ${data_dir}/${i}.${sx} \
             -o ${output_dir}/cds/${i}.cds.fasta
         fi
@@ -119,19 +123,14 @@
 	if [ ! -f ${output_dir}/SGC_ANI/tmp/$i.$i2.txt ] ; then
 		log "RUNNING: calculating SGC_ANI $i"
 
-		awk '{print $5}' ${output_dir}/distance/$i.$i2.dist.tsv \
-		| awk -F'/' '{print $1*100/1000 }' | tr ' ' '\n' \
-		> ${output_dir}/SGC_ANI/tmp/$i.$i2.SGC.txt
+		SGC=$(awk '{print $5}' ${output_dir}/distance/$i.$i2.dist.tsv \
+		| awk -F'/' '{print $1*100/1000 }' | tr ' ' '\n' )
 
-		awk '{print (1-$3)*100}' ${output_dir}/distance/$i.$i2.dist.tsv \
-		| tr ' ' '\n' > ${output_dir}/SGC_ANI/tmp/$i.$i2.ANI.txt
+		ANI=$(awk '{print (1-$3)*100}' ${output_dir}/distance/$i.$i2.dist.tsv \
+		| tr ' ' '\n')
 
-		paste ${output_dir}/SGC_ANI/tmp/$i.$i2.SGC.txt \
-		${output_dir}/SGC_ANI/tmp/$i.$i2.ANI.txt \
-		> ${output_dir}/SGC_ANI/tmp/$i.$i2.SGC_ANI.txt
-
-		awk '{print $1*$2/100}' ${output_dir}/SGC_ANI/tmp/$i.$i2.SGC_ANI.txt \
-		> ${output_dir}/SGC_ANI/tmp/$i.$i2.txt
+        echo "SGC $SGC ANI $ANI"
+        echo "$(echo "$SGC * $ANI / 100" | bc -l)" > ${output_dir}/SGC_ANI/tmp/$i.$i2.txt
 
 		cat ${output_dir}/SGC_ANI/tmp/$i.$i2.txt \
 		>> ${output_dir}/SGC_ANI/tmp/$i2.txt
@@ -170,19 +169,19 @@
 ## step-7: tree
 	if [ ! -f ${output_dir}/SGC_ANI/UPGMA.nwk ]; then
 		log "RUNNING: tree"
-		Rscript scripts/tree.r \
+		Rscript $pipeline_dir/scripts/tree.r \
 		-i ${output_dir}/SGC_ANI/SGC_ANI.tab \
 		-o ${output_dir}/SGC_ANI/UPGMA.nwk
 
 		mv Rplots.pdf ${output_dir}/SGC_ANI/
 
-		python scripts/export_phylogenomic_tip_labels.py \
+		python $pipeline_dir/scripts/export_phylogenomic_tip_labels.py \
 		-i ${output_dir}/SGC_ANI/UPGMA.nwk \
 		-o ${output_dir}/SGC_ANI/UPGMA.labels
 	fi
 
 ## step-8: blast
-    mkdir ${output_dir}/blast/files > /dev/null 2>&1
+    mkdir -p ${output_dir}/blast/files > /dev/null 2>&1
     mapfile -t ids < ${output_dir}/SGC_ANI/UPGMA.labels
     for ((i=0; i<${#ids[@]}-1; i++)); do
         query=${ids[i]}
@@ -209,22 +208,22 @@
         fi
     done
 ## step-9: genePlot
-    # if [ ! -f ${output_dir}/genePlot.coordinates.png ]; then
-        # log "Creating genePlot coordinates"
-        # Rscript scripts/gggenomes_plot.coordinates.R \
-        # -i ${data_dir}/ \
-        # -b ${output_dir}/blast/files/ \
-        # -l ${output_dir}/SGC_ANI/UPGMA.labels \
-        # --distance 1.0 \
-        # --output_format png \
-        # --labels_on_top \
-        # --char 10 \
-        # -o ${output_dir}/genePlot.coordinates.png
-    # fi
+    if [ ! -f ${output_dir}/genePlot.coordinates.png ]; then
+        log "Creating genePlot coordinates"
+        Rscript $pipeline_dir/scripts/gggenomes_plot.coordinates.R \
+        -i ${data_dir}/ \
+        -b ${output_dir}/blast/files/ \
+        -l ${output_dir}/SGC_ANI/UPGMA.labels \
+        --distance 1.0 \
+        --output_format png \
+        --labels_on_top \
+        --char 10 \
+        -o ${output_dir}/genePlot.coordinates.png
+    fi
 
     # if [ ! -f ${output_dir}/genePlot.genes.png ]; then
         log "Creating genePlot genes"
-        Rscript scripts/gggenomes_plot.genes.R \
+        Rscript $pipeline_dir/scripts/gggenomes_plot.genes.R \
         -i ${data_dir}/ \
         -b ${output_dir}/blast/files/ \
         -l ${output_dir}/SGC_ANI/UPGMA.labels \

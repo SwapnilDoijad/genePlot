@@ -188,11 +188,11 @@ p <- ggplot() +
     } else NULL
   } +
   scale_fill_discrete(name = "Genes") +
-  coord_cartesian(
-    xlim = c(min(min_x_label, min(gene_polys$x_poly, na.rm = TRUE)) - 100,
-             max(gene_polys$x_poly, na.rm = TRUE) + 500),
-    ylim = c(0.5, max(gene_polys$y) + 1)
-  ) +
+  # coord_cartesian(
+  #   xlim = c(min(min_x_label, min(gene_polys$x_poly, na.rm = TRUE)) - 100,
+  #            max(gene_polys$x_poly, na.rm = TRUE) + 500),
+  #   ylim = c(0.5, max(gene_polys$y) + 1)
+  # ) +
   theme_void() +
   coord_cartesian(clip = "off") + 
   theme(
